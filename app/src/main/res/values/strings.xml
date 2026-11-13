@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Đố Vui</string>
+    <string name="server_failed">Không khởi động được server trên cổng 8080</string>
+
+    <!--
+      Where the online questions live (folder that contains manifest.json, questions.json and img/).
+      Example for GitHub Pages: https://<tên-github>.github.io/<tên-repo>/
+      Leave empty to use only the small question set bundled in the APK.
+      Currently the raw GitHub address (works without enabling GitHub Pages; changes appear within ~5 min).
+      After enabling Pages you can switch to https://kimanhduc.github.io/partygame/
+    -->
+    <string name="content_base_url" translatable="false">https://raw.githubusercontent.com/KimAnhDuc/partygame/main/</string>
+</resources>

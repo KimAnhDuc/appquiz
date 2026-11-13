@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đố Vui – TV</title>
+<style>
+  :root { --bg:#14101F; --card:#231C35; --line:#3A3054; --text:#F5F2FF; --dim:#A99FC4; --accent:#FF4F8B; --ok:#3DDC97; --gold:#FFCA28;
+          --A:#E21B3C; --B:#1368CE; --C:#D89E00; --D:#26890C; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; overflow:hidden; }
+  body { background:radial-gradient(ellipse at top left, #2B1D52 0%, var(--bg) 60%); color:var(--text);
+         font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-size:1.9vw; }
+  #app { height:100%; padding:3.5vh 4vw; display:flex; flex-direction:column; }
+  .top { display:flex; align-items:center; gap:1.2vw; margin-bottom:2.5vh; flex:none; }
+  .logo { font-weight:900; font-size:1.35em; letter-spacing:.05em; margin-right:1vw; }
+  .logo span { color:var(--accent); }
+  .pill { background:var(--card); border:1px solid var(--line); border-radius:999px; padding:.3em 1em; color:var(--dim); font-weight:700; }
+  .timer { margin-left:auto; font-size:1.9em; font-weight:900; font-variant-numeric:tabular-nums; color:var(--accent); min-width:3em; text-align:right; }
+  .timer.low { animation:pulse 1s infinite; }
+  .tbar { height:.7vh; background:var(--card); border-radius:99px; overflow:hidden; margin:-1vh 0 2.5vh; flex:none; }
+  .tbar div { height:100%; background:var(--accent); transition:width 1s linear; }
+  @keyframes pulse { 50% { opacity:.35; } }
+  @keyframes pop { from { transform:scale(.85); opacity:0; } to { transform:none; opacity:1; } }
+  .fill { flex:1; min-height:0; }
+  h1 { font-size:2em; margin:0 0 .3em; line-height:1.2; }
+  .dim { color:var(--dim); }
+  .center { text-align:center; }
+
+  /* Lobby */
+  .lobby { display:grid; grid-template-columns:auto 1fr; gap:5vw; align-items:center; }
+  .qr { background:#fff; padding:1.2vw; border-radius:1.5vw; }
+  .qr img { display:block; width:32vh; height:32vh; image-rendering:pixelated; }
+  .url { font-size:1.35em; font-weight:800; margin:.3em 0 1em; word-break:break-all; }
+  .chips { display:flex; flex-wrap:wrap; gap:.8vw; margin-top:2.5vh; flex:none; }
+  .chip { display:flex; align-items:center; gap:.5em; background:var(--card); border:2px solid var(--line); border-radius:999px; padding:.35em 1em .35em .45em; font-weight:700; animation:pop .3s ease-out; transition:opacity .3s, border-color .3s; }
+  .chip.wait { opacity:.4; }
+  .chip.done { border-color:var(--ok); }
+  .avatar { width:1.6em; height:1.6em; border-radius:50%; display:grid; place-items:center; color:#14101F; font-weight:900; font-size:.9em; flex:none; }
+
+  /* Question */
+  .qtext { font-size:2.1em; font-weight:800; line-height:1.25; margin:0 0 2.5vh; animation:pop .4s ease-out; flex:none; }
+  .qtext.small { font-size:1.6em; }
+  .media { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; margin-bottom:2.5vh; animation:pop .5s ease-out; }
+  .media img { max-height:100%; max-width:60%; border-radius:1vw; background:#fff; padding:.8vw; box-shadow:0 1vh 4vh rgba(0,0,0,.4); }
+  .media .emoji { font-size:24vh; line-height:1; }
+  .opts { display:grid; grid-template-columns:1fr 1fr; gap:1.6vh 1.2vw; flex:none; }
+  .opt { display:flex; align-items:center; gap:.7em; border-radius:1vw; padding:.75em 1em; font-weight:800; font-size:1.2em; color:#fff;
+         box-shadow:inset 0 -.6vh 0 rgba(0,0,0,.25); min-height:11vh; transition:opacity .4s, transform .4s; animation:pop .35s ease-out backwards; }
+  .opt .shape { font-size:.9em; opacity:.9; }
+  .opt .letter { font-weight:900; font-size:1.15em; }
+  .opt .txt { flex:1; line-height:1.25; }
+  .opt .cnt { font-size:.9em; background:rgba(0,0,0,.25); border-radius:99px; padding:.1em .7em; font-variant-numeric:tabular-nums; }
+  .opt.wrong { opacity:.28; }
+  .opt.right { transform:scale(1.03); box-shadow:0 0 0 .5vh #fff, 0 0 4vh rgba(255,255,255,.35); }
+  .A { background:var(--A); } .B { background:var(--B); } .C { background:var(--C); } .D { background:var(--D); }
+  .spacer { flex:1; }
+
+  /* Reveal */
+  .reveal { display:grid; grid-template-columns:1fr 30vw; gap:3vw; }
+  .reveal > div { display:flex; flex-direction:column; min-height:0; }
+  .board { display:flex; flex-direction:column; gap:1.1vh; }
+  .rank { display:flex; align-items:center; gap:.8em; background:var(--card); border:1px solid var(--line); border-radius:1vw; padding:.55em .9em; font-weight:700; animation:pop .35s ease-out backwards; }
+  .rank .pos { width:1.6em; text-align:center; }
+  .rank .score { margin-left:auto; font-variant-numeric:tabular-nums; }
+  .gain { color:var(--ok); font-weight:900; font-size:.85em; }
+  .miss { color:var(--dim); font-size:.85em; }
+
+  /* Final */
+  .champ { text-align:center; animation:pop .6s ease-out; }
+  .champ .crown { font-size:12vh; line-height:1; }
+  .champ .name { font-size:3em; font-weight:900; line-height:1.1; }
+  .champ .pts { color:var(--gold); font-size:1.4em; font-weight:800; margin-top:.3em; }
+  .final { display:grid; grid-template-columns:1fr 1fr; gap:4vw; align-items:center; }
+  .rank.first { border-color:var(--gold); }
+  .footer { color:var(--dim); text-align:center; margin-top:2vh; flex:none; }
+  .err { margin:auto; text-align:center; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const LETTERS = ['A', 'B', 'C', 'D'];
+const SHAPES = ['▲', '◆', '●', '■'];
+const app = document.getElementById('app');
+let lastKey = '';
+let st = null;
+const preloaded = new Set();
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'style') el.style.cssText = v; else if (v != null && v !== false) el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(kid));
+  return el;
+}
+const avatar = p => h('span', { class: 'avatar', style: 'background:' + p.color }, (p.name || '?').charAt(0).toUpperCase());
+const chip = (p, cls) => h('div', { class: 'chip ' + (cls || '') }, avatar(p), p.name, p.vip ? ' 👑' : '');
+const ranked = () => [...st.players].sort((a, b) => b.score - a.score || b.correct - a.correct);
+
+async function poll() {
+  try {
+    const r = await fetch('/api/state', { cache: 'no-store' });
+    st = await r.json();
+    render();
+  } catch (e) {}
+}
+
+// Only rebuild the whole screen when something structural changes (phase, question, scores).
+// Players joining / answering just update the little chips row in place, so the picture, the
+// answer boxes and the countdown bar don't flash or replay their animations.
+function structuralKey() {
+  const { remaining, players, ...rest } = st;
+  if (st.phase === 'QUESTION' || st.phase === 'LOBBY') {
+    rest.anyPlayers = players.length > 0;
+    return JSON.stringify(rest);
+  }
+  return JSON.stringify([rest, players.map(p => [p.id, p.name, p.color, p.score, p.correct, p.vip, p.lastGain, p.lastCorrect])]);
+}
+
+function fillChips() {
+  const box = document.getElementById('chips');
+  if (!box) return;
+  const ids = new Set(st.players.map(p => p.id));
+  for (const el of [...box.children]) if (!ids.has(el.dataset.id)) el.remove();
+  for (const p of st.players) {
+    const state = st.phase === 'QUESTION' ? (p.done ? 'done' : 'wait') : '';
+    let el = [...box.children].find(c => c.dataset.id === p.id);
+    if (!el) {
+      el = chip(p, state);
+      el.dataset.id = p.id;
+      box.append(el);
+    } else if (el.dataset.state !== state) {
+      el.className = 'chip ' + state;
+    }
+    el.dataset.state = state;
+  }
+}
+
+function render() {
+  const key = structuralKey();
+  if (key !== lastKey) {
+    lastKey = key;
+    app.replaceChildren(...build());
+  }
+  fillChips();
+  if (st.preload && !preloaded.has(st.preload)) {          // warm the cache for the next question's picture
+    preloaded.add(st.preload);
+    new Image().src = st.preload;
+  }
+  const t = document.getElementById('timer');
+  if (t) {
+    t.textContent = st.remaining + 's';
+    t.classList.toggle('low', st.phase === 'QUESTION' && st.remaining <= 5);
+  }
+  const b = document.getElementById('tbar');
+  if (b) b.style.width = Math.max(0, (st.remaining - 1) / st.duration * 100) + '%';
+}
+
+function topBar(...pills) {
+  return h('div', { class: 'top' },
+    h('div', { class: 'logo' }, '🧠 ĐỐ ', h('span', null, 'VUI')),
+    pills.filter(Boolean).map(p => h('div', { class: 'pill' }, p)),
+    st.phase === 'QUESTION' || st.phase === 'REVEAL' ? h('div', { class: 'timer', id: 'timer' }, st.remaining + 's') : null);
+}
+
+function media(q) {
+  if (q.image) {
+    const img = h('img', { src: q.image, alt: '' });
+    img.onerror = () => { img.style.display = 'none'; };   // offline / missing picture: still playable
+    return h('div', { class: 'media' }, img);
+  }
+  if (q.emoji) return h('div', { class: 'media' }, h('div', { class: 'emoji' }, q.emoji));
+  return h('div', { class: 'spacer' });
+}
+
+function options(q, reveal) {
+  return h('div', { class: 'opts' }, q.options.map((text, i) => {
+    const cls = reveal ? (i === q.answer ? ' right' : ' wrong') : '';
+    return h('div', { class: 'opt ' + LETTERS[i] + cls, style: 'animation-delay:' + (0.1 + i * 0.1) + 's' },
+      h('span', { class: 'shape' }, SHAPES[i]), h('span', { class: 'letter' }, LETTERS[i]),
+      h('span', { class: 'txt' }, text),
+      reveal ? h('span', { class: 'cnt' }, '👤 ' + q.counts[i]) : null);
+  }));
+}
+
+function build() {
+  switch (st.phase) {
+    case 'LOBBY': return lobby();
+    case 'QUESTION': {
+      const q = st.question;
+      const hasMedia = q.image || q.emoji;
+      return [
+        topBar('Câu ' + st.index + '/' + st.total, q.category),
+        h('div', { class: 'tbar' }, h('div', { id: 'tbar', style: 'width:100%' })),
+        h('div', { class: 'qtext' + (hasMedia ? ' small' : '') }, q.text),
+        media(q),
+        options(q, false),
+        h('div', { class: 'chips', id: 'chips' })
+      ];
+    }
+    case 'REVEAL': {
+      const q = st.question;
+      const list = ranked().slice(0, 6);
+      return [
+        topBar('Câu ' + st.index + '/' + st.total, q.category, 'Đáp án'),
+        h('div', { class: 'reveal fill' },
+          h('div', null,
+            h('div', { class: 'qtext small' }, q.text),
+            media(q),
+            options(q, true)),
+          h('div', null,
+            h('h1', { style: 'font-size:1.3em' }, '🏅 Bảng điểm'),
+            h('div', { class: 'board' }, list.map((p, i) => h('div', { class: 'rank', style: 'animation-delay:' + i * 0.08 + 's' },
+              h('span', { class: 'pos' }, i + 1), avatar(p),
+              h('span', null, p.name, h('br'), p.lastGain > 0
+                ? h('span', { class: 'gain' }, '+' + p.lastGain)
+                : h('span', { class: 'miss' }, p.lastCorrect === false ? 'Sai' : 'Không trả lời')),
+              h('span', { class: 'score' }, p.score)))),
+            st.players.length > list.length ? h('div', { class: 'dim', style: 'margin-top:1vh' }, '+' + (st.players.length - list.length) + ' người khác') : null))
+      ];
+    }
+    default: return finalBoard();
+  }
+}
+
+function lobby() {
+  return [
+    topBar('Phòng chờ'),
+    h('div', { class: 'lobby fill' },
+      st.joinUrl
+        ? h('div', { class: 'qr' }, h('img', { src: '/qr.png?u=' + encodeURIComponent(st.joinUrl), alt: 'QR' }))
+        : h('div', { class: 'pill' }, '⚠️ TV chưa kết nối mạng'),
+      h('div', null,
+        h('h1', null, 'Quét mã để vào chơi'),
+        h('div', { class: 'dim' }, 'Hoặc mở trình duyệt trên điện thoại (cùng Wi-Fi) và vào:'),
+        h('div', { class: 'url' }, st.joinUrl || '—'),
+        h('div', { class: 'dim' }, st.players.length
+          ? '✅ VIP 👑 bấm "Bắt đầu" trên điện thoại, hoặc nhấn OK trên remote.'
+          : 'Chưa có ai trong phòng…'),
+        h('div', { class: 'chips', id: 'chips' })
+      )
+    ),
+    h('div', { class: 'footer' }, 'Chọn A/B/C/D trên điện thoại · Đúng: 500 điểm + tối đa 500 điểm thưởng tốc độ'),
+    h('div', { class: 'footer dim', style: 'font-size:.7em;margin-top:.5vh' },
+      st.bank.count.toLocaleString('vi-VN') + ' câu hỏi · nguồn: ' + st.bank.source + ' · phiên bản ' + st.bank.version)
+  ];
+}
+
+function finalBoard() {
+  const list = ranked();
+  const top = list[0];
+  const champs = top ? list.filter(p => p.score === top.score && p.correct === top.correct) : [];
+  const medal = i => ['🏆', '🥈', '🥉'][i] || (i + 1) + '.';
+  return [
+    topBar('Tổng kết'),
+    h('div', { class: 'final fill' },
+      h('div', { class: 'champ' },
+        h('div', { class: 'crown' }, '🏆'),
+        h('div', { class: 'dim' }, champs.length > 1 ? 'Đồng vô địch' : 'Nhà vô địch'),
+        h('div', { class: 'name' }, champs.map(p => p.name).join(' & ') || '—'),
+        top ? h('div', { class: 'pts' }, top.score + ' điểm · đúng ' + top.correct + '/' + st.total) : null),
+      h('div', { class: 'board' }, list.map((p, i) =>
+        h('div', { class: 'rank' + (i === 0 ? ' first' : ''), style: 'animation-delay:' + (0.3 + i * 0.12) + 's' },
+          h('span', { class: 'pos' }, medal(i)), avatar(p),
+          h('span', null, p.name, h('br'), h('span', { class: 'miss' }, 'Đúng ' + p.correct + '/' + st.total)),
+          h('span', { class: 'score' }, p.score + ' điểm'))))),
+    h('div', { class: 'footer' }, 'Nhấn OK trên remote hoặc VIP 👑 bấm "Chơi ván mới" để quay lại phòng chờ')
+  ];
+}
+
+poll();
+setInterval(poll, 1000);
+</script>
+</body>
+</html>

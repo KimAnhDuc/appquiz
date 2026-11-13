@@ -1,0 +1,17 @@
+# Build output / Gradle
+.gradle/
+build/
+*.apk
+*.aab
+local.properties
+.idea/
+*.iml
+.kotlin/
+
+# Local tooling caches
+tools/cache/
+__pycache__/
+*.pyc
+
+# Quiz content is its own repo (https://github.com/KimAnhDuc/partygame) -> published separately
+quiz-content/
